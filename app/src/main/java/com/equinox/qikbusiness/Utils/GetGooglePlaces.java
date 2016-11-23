@@ -23,8 +23,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by mukht on 10/30/2016.
@@ -50,23 +53,27 @@ public class GetGooglePlaces {
     public void parsePlaces(final Location location) {
         placeList = new ArrayList<>();
         String baseURL = "https://maps.googleapis.com/maps/api/place/search/json?";
-        String urlArguments = "location="+location.getLatitude()+","+location.getLongitude()+"&radius=10000"
-                 + "&type=" + placeType.getTypeName() + "&sensor=true_or_false&key=" + Constants.PLACES_API_KEY;
+        String urlArguments = "location="+location.getLatitude()+","+location.getLongitude()+"&radius="+10*1000
+                + "&type=" + placeType.getTypeName() + "&sensor=true_or_false&key=" + Constants.PLACES_API_KEY;
         JsonObjectRequest placeReq = new JsonObjectRequest(baseURL+urlArguments, null, placesListener, placesErrorListener);
-        baseURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
-        urlArguments = "location="+location.getLatitude()+","+location.getLongitude()+"&radius=10000"
-                + "&keyword=" + placeType.getKeyword()+ "&sensor=true_or_false&key=" + Constants.PLACES_API_KEY;
-        JsonObjectRequest placeReqSecondary = new JsonObjectRequest(baseURL+urlArguments, null, placesListener, placesErrorListener);
-        // Adding request to request queue
         AppVolleyController.getInstance().addToRequestQueue(placeReq, NORMAL);
-        AppVolleyController.getInstance().addToRequestQueue(placeReqSecondary, SECONDARY);
+        for (String keyword : Arrays.asList(placeType.getKeyword())) {
+            baseURL = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?";
+            urlArguments = "location="+location.getLatitude()+","+location.getLongitude()+"&radius="+10*1000
+                    + "&keyword=" + keyword+ "&sensor=true_or_false&key=" + Constants.PLACES_API_KEY;
+            JsonObjectRequest placeReqSecondary = new JsonObjectRequest(baseURL+urlArguments, null, placesListener, placesErrorListener);
+            AppVolleyController.getInstance().addToRequestQueue(placeReqSecondary, SECONDARY);
+        }
         AppVolleyController.getInstance().getRequestQueue().addRequestFinishedListener(new RequestQueue.RequestFinishedListener<Object>() {
             @Override
             public void onRequestFinished(Request<Object> request) {
-                // notifying list adapter about data changes
-                // so that it renders the list view with updated data
-                hidePDialog();
-                placeHandler.sendMessage(new Message());
+                new Timer().schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        hidePDialog();
+                        placeHandler.sendMessage(new Message());
+                    }
+                },1000);
                 AppVolleyController.getInstance().getRequestQueue().removeRequestFinishedListener(this);
             }
         });
@@ -92,12 +99,14 @@ public class GetGooglePlaces {
                                 JSONObject openingHours = obj.getJSONObject("opening_hours");
                                 place.setOpenNow(openingHours.getBoolean("open_now"));
                             }
-                            JSONArray photos = obj.getJSONArray("photos");
-                            JSONObject photo = photos.getJSONObject(0);
-                            Photo tempPhoto = new Photo(photo.getInt("width"), photo.getInt("height"), null, photo.getString("photo_reference"));
-                            List<Photo> photoList= new ArrayList<>();
-                            photoList.add(tempPhoto);
-                            place.setPhoto(photoList);
+                            if (obj.has("photos")) {
+                                JSONArray photos = obj.getJSONArray("photos");
+                                JSONObject photo = photos.getJSONObject(0);
+                                Photo tempPhoto = new Photo(photo.getInt("width"), photo.getInt("height"), null, photo.getString("photo_reference"));
+                                List<Photo> photoList= new ArrayList<>();
+                                photoList.add(tempPhoto);
+                                place.setPhotos(photoList);
+                            }
                             place.setPlaceId(obj.getString("place_id"));
                             place.setVicinity(obj.getString("vicinity"));
                             placeList.add(place);

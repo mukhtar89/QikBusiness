@@ -8,7 +8,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical" >
+        android:orientation="vertical"
+        android:id="@+id/business_fragment_main_layout">
 
         <FrameLayout
             xmlns:android="http://schemas.android.com/apk/res/android"
@@ -139,10 +140,9 @@
         <android.support.v7.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/order_status_card"
-            android:layout_alignTop="@+id/header_detail_frame"
-            android:layout_margin="5dp"
-            card_view:cardElevation="4dp"
+            android:id="@+id/order_status_display_card"
+            card_view:cardUseCompatPadding="true"
+            card_view:cardElevation="2dp"
             card_view:cardCornerRadius="2dp">
 
             <LinearLayout
@@ -173,175 +173,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="45dp"
                 android:padding="5dp"
-                android:shrinkColumns="*">
-                <TableRow>
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_weight="1"
-                        android:tint="@color/red"
-                        android:layout_gravity="center_vertical|center_horizontal"
-                        android:src="@drawable/ic_alarm_add_white_48dp"/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/red"
-                        android:layout_weight="50"
-                        android:text="Incoming"
-                        android:textSize="17sp"
-                        android:gravity="start"
-                        android:padding="5dp" />
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/red"
-                        android:layout_weight="50"
-                        android:textSize="17sp"
-                        android:gravity="start"
-                        android:padding="5dp"
-                        android:id="@+id/order_incoming"/>
-                </TableRow>
-
-                <TableRow>
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_weight="1"
-                        android:tint="@color/colorPrimary"
-                        android:layout_gravity="center_vertical|center_horizontal"
-                        android:src="@drawable/ic_alarm_white_48dp"/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/colorPrimary"
-                        android:layout_weight="50"
-                        android:text="Processing"
-                        android:textSize="17sp"
-                        android:gravity="start"
-                        android:padding="5dp" />
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/colorPrimary"
-                        android:layout_weight="50"
-                        android:textSize="17sp"
-                        android:gravity="start"
-                        android:padding="5dp"
-                        android:id="@+id/order_processing"/>
-
-                </TableRow>
-
-                <TableRow>
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_weight="1"
-                        android:tint="@color/green"
-                        android:layout_gravity="center_vertical|center_horizontal"
-                        android:src="@drawable/ic_alarm_on_white_48dp"/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/green"
-                        android:layout_weight="50"
-                        android:text="Completed"
-                        android:textSize="17sp"
-                        android:gravity="start"
-                        android:padding="5dp" />
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/green"
-                        android:layout_weight="50"
-                        android:textSize="17sp"
-                        android:gravity="start"
-                        android:padding="5dp"
-                        android:id="@+id/order_complete"/>
-                </TableRow>
-
-                <TableRow>
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_weight="1"
-                        android:tint="@color/colorAccent"
-                        android:layout_gravity="center_vertical|center_horizontal"
-                        android:src="@drawable/ic_alarm_off_white_48dp"/>
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/colorAccent"
-                        android:layout_weight="50"
-                        android:text="Cancelled"
-                        android:textSize="18sp"
-                        android:gravity="start"
-                        android:padding="5dp" />
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textStyle="bold"
-                        android:textColor="@color/colorAccent"
-                        android:layout_weight="50"
-                        android:textSize="18sp"
-                        android:gravity="start"
-                        android:padding="5dp"
-                        android:id="@+id/order_cancelled"/>
-                </TableRow>
-
+                android:id="@+id/overview_table">
             </TableLayout>
 
-        </android.support.v7.widget.CardView>
-
-        <android.support.v7.widget.CardView
-            android:layout_width="match_parent"
-            android:layout_height="300dp"
-            android:id="@+id/order_incoming_card"
-            android:layout_alignTop="@+id/order_status_card"
-            android:layout_margin="5dp"
-            card_view:cardElevation="4dp"
-            card_view:cardCornerRadius="2dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:background="@color/colorAccent">
-                <ImageView
-                    android:layout_width="28dp"
-                    android:layout_height="28dp"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="5dp"
-                    android:layout_gravity="center_vertical|center_horizontal"
-                    android:src="@drawable/ic_alarm_add_white_48dp"/>
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textStyle="bold"
-                    android:textColor="#FFFFFF"
-                    android:text="Incoming Orders"
-                    android:textSize="20sp"
-                    android:gravity="start"
-                    android:padding="10dp" />
-            </LinearLayout>
-
-            <TableLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="45dp"
-                android:padding="5dp"
-                android:shrinkColumns="*"
-                android:id="@+id/order_incoming_list">
-            </TableLayout>
         </android.support.v7.widget.CardView>
 
     </LinearLayout>
-
 
 </android.support.v4.widget.NestedScrollView>

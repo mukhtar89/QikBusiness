@@ -49,7 +49,7 @@ import static com.equinox.qikbusiness.Models.Constants.PLACE_ID;
  * Created by mukht on 11/11/2016.
  */
 
-public class BusinessFragment extends Fragment {
+public class EmployeeFragment extends Fragment {
 
     private Place place;
     private NetworkImageView placeImagePoster, placeProfileImage;
@@ -68,7 +68,7 @@ public class BusinessFragment extends Fragment {
     private static Hashtable<String,Hashtable<OrderStatus,List<Order>>> orderTable = new Hashtable<>();
 
     public static Fragment newInstance(Place place) {
-        BusinessFragment fragment = new BusinessFragment();
+        EmployeeFragment fragment = new EmployeeFragment();
         fragment.place = place;
         fragment.businessReference = DataHolder.userDatabaseReference.getParent()
                 .getParent().child(BUSINESS_OUTLET).child(place.getPlaceId());

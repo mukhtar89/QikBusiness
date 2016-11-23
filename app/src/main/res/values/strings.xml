@@ -23,4 +23,7 @@
     <string name="facebook_app_id">1004359046340574</string>
     <string name="title_activity_search_business">Search My Business</string>
     <string name="search_business_hint">Enter your business\' name</string>
+    <string name="title_activity_processing">ProcessingActivity</string>
+    <string name="title_activity_business">BusinessActivity</string>
+    <string name="section_format">Hello World from section: %1$d</string>
 </resources>

@@ -3,27 +3,26 @@ package com.equinox.qikbusiness.Activities;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.Location;
-import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.os.Parcelable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
-import android.support.v4.view.ViewPager;
-import android.support.v7.widget.CardView;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -33,8 +32,11 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.equinox.qikbusiness.Adapters.BusinessPagerAdapter;
 import com.equinox.qikbusiness.Models.Constants;
 import com.equinox.qikbusiness.Models.DataHolder;
+import com.equinox.qikbusiness.Models.GeoAddress;
 import com.equinox.qikbusiness.Models.Place;
+import com.equinox.qikbusiness.Models.User;
 import com.equinox.qikbusiness.R;
+import com.equinox.qikbusiness.Utils.FetchGeoAddress;
 import com.equinox.qikbusiness.Utils.FusedLocationService;
 import com.equinox.qikbusiness.Utils.GetPlaceDetails;
 import com.equinox.qikbusiness.Utils.LocationPermission;
@@ -47,6 +49,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static com.equinox.qikbusiness.Models.Constants.BUSINESS;
+import static com.equinox.qikbusiness.Models.Constants.BUSINESS_OWNER;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -66,6 +71,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     private FusedLocationService fusedLocationService;
     private GetPlaceDetails getPlaceDetails;
     private List<Place> placeList = new ArrayList<>();
+    private FetchGeoAddress fetchGeoAddress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,28 +93,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     loginName.setVisibility(View.GONE);
                 } else {
                     Log.d("AUTH", "OnAuthState: Signed in " + user.getUid());
-                    DataHolder.userDatabaseReference =
-                            DataHolder.database.getReference(FirebaseAuth.getInstance().getCurrentUser().getUid());
-                    DataHolder.getInstance().setRole("business");
-                    if (placeList.isEmpty())
-                        DataHolder.userDatabaseReference.child(Constants.BUSINESS_OWNER).addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            List<String> ownershipList = (List<String>) dataSnapshot.getValue();
-                            if (ownershipList == null) {
-                                pDialog.dismiss();
-                                addMyBusinessButton.setVisibility(View.VISIBLE);
-                            }
-                            else {
-                                addMyBusinessButton.setVisibility(View.GONE);
-                                DataHolder.ownershipList = ownershipList;
-                                getPlaceDetails.parseDetail(ownershipList);
-                                DataHolder.userDatabaseReference.child(Constants.BUSINESS_OWNER).removeEventListener(this);
-                            }
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {}
-                    });
+                    addressFetchHandler.sendMessage(new Message());
                     loginButton.setVisibility(View.GONE);
                     loginEmail.setVisibility(View.VISIBLE);
                     loginName.setVisibility(View.VISIBLE);
@@ -121,15 +106,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
             }
         };
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -267,12 +243,54 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return true;
     }
 
+    private Handler addressFetchHandler = new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(Message msg) {
+            if (FirebaseAuth.getInstance().getCurrentUser() != null && DataHolder.location != null && fetchGeoAddress != null) {
+                GeoAddress address = fetchGeoAddress.getAddress();
+                DataHolder.userDatabaseReference =
+                        DataHolder.database.getReference(address.getBasePath(BUSINESS)).child(BUSINESS_OWNER)
+                                .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
+                DataHolder.currentUser = new User();
+                DataHolder.currentUser.setAddress(address);
+                fetchGeoAddress.fetchCurrencyMetadata();
+                DataHolder.getInstance().setRole(BUSINESS);
+                DataHolder.generateMetadata();
+                if (placeList.isEmpty())
+                    DataHolder.userDatabaseReference.child(BUSINESS_OWNER).addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            List<String> ownershipList = (List<String>) dataSnapshot.getValue();
+                            if (ownershipList == null) {
+                                pDialog.dismiss();
+                                addMyBusinessButton.setVisibility(View.VISIBLE);
+                            }
+                            else {
+                                addMyBusinessButton.setVisibility(View.GONE);
+                                DataHolder.ownershipList = ownershipList;
+                                getPlaceDetails.parseDetail(null, ownershipList);
+                                DataHolder.userDatabaseReference.child(BUSINESS_OWNER).removeEventListener(this);
+                            }
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {}
+                    });
+            }
+            return false;
+        }
+    });
+
     private Handler locationHandler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if (DataHolder.location == null)
-                DataHolder.location = fusedLocationService.returnLocation();
-            return true;
+            if (fusedLocationService.returnLocation() != null) {
+                if (DataHolder.location == null) {
+                    DataHolder.location = fusedLocationService.returnLocation();
+                    fetchGeoAddress = new FetchGeoAddress();
+                    fetchGeoAddress.fetchLocationGeoData(DataHolder.location, addressFetchHandler, null);
+                }
+            }
+            return false;
         }
     });
 

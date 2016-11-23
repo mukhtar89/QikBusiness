@@ -22,25 +22,15 @@ public class StringManipulation {
         return builder.toString();
     }
 
-    public static String getFormattedDate(Integer seconds) {
-        Long sec = (long) seconds;
-        sec *= 1000;
-        Date date = new Date(sec);
+    public static String getFormattedDate(Long seconds) {
+        Date date = new Date(seconds);
         DateFormat simpleDateFormat = SimpleDateFormat.getDateTimeInstance();
         return simpleDateFormat.format(date);
     }
 
-    public static String getDateCurrentTimeZone(long timestamp) {
-        try{
-            Calendar calendar = Calendar.getInstance();
-            TimeZone tz = TimeZone.getDefault();
-            calendar.setTimeInMillis(timestamp * 1000);
-            calendar.add(Calendar.MILLISECOND, tz.getOffset(calendar.getTimeInMillis()));
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            Date currenTimeZone = calendar.getTime();
-            return sdf.format(currenTimeZone);
-        }catch (Exception e) {
-        }
-        return "";
+    public static String getFormattedTime(Long seconds) {
+        Date date = new Date(seconds);
+        DateFormat simpleDateFormat = SimpleDateFormat.getTimeInstance();
+        return simpleDateFormat.format(date);
     }
 }

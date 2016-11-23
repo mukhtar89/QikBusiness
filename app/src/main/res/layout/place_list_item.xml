@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="100dp"
     android:id="@+id/place_list_card_layout"
     android:layout_margin="3dp"
     card_view:cardElevation="4dp"
@@ -40,7 +40,7 @@
             android:layout_height="wrap_content"
             android:textStyle="bold"
             android:textColor="#ff8c00"
-            android:textSize="20sp"
+            android:textSize="18sp"
             android:gravity="start"
             android:paddingBottom="10dp"
             android:id="@+id/place_list_name"/>
@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"
             android:textStyle="italic"
             android:textColor="#388700"
-            android:textSize="15sp"
+            android:textSize="13sp"
             android:gravity="start"
             android:id="@+id/place_list_vicinity" />
 

@@ -26,6 +26,10 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.equinox.qikbusiness.Models.Constants.BUSINESS;
+import static com.equinox.qikbusiness.Models.Constants.BUSINESS_OUTLET;
+import static com.equinox.qikbusiness.Models.Constants.BUSINESS_OWNER;
+
 /**
  * Created by mukht on 11/11/2016.
  */
@@ -53,12 +57,14 @@ public class SearchBusinessAdapter extends RecyclerView.Adapter<SearchBusinessAd
         final Place place = placeList.get(position);
         holder.placeVicinity.setText(place.getVicinity());
         holder.placeName.setText(StringManipulation.CapsFirst(place.getName()));
-        holder.placeImage.setImageUrl(place.getPhoto().get(0).returnApiUrl(Constants.PLACES_API_KEY),
-                DataHolder.getInstance().getImageLoader());
+        if (place.getPhotos() != null) {
+            holder.placeImage.setImageUrl(place.getPhotos().get(0).returnApiUrl(Constants.PLACES_API_KEY),
+                    DataHolder.getInstance().getImageLoader());
+        }
         holder.cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                final DatabaseReference ownershipListReference = DataHolder.userDatabaseReference.child(Constants.BUSINESS_OWNER).getRef();
+                final DatabaseReference ownershipListReference = DataHolder.userDatabaseReference.child(BUSINESS_OWNER).getRef();
                 ownershipListReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -72,8 +78,8 @@ public class SearchBusinessAdapter extends RecyclerView.Adapter<SearchBusinessAd
                     @Override
                     public void onCancelled(DatabaseError databaseError) {}
                 });
-                final DatabaseReference ownersListReference = DataHolder.database.getReference()
-                        .child(place.getPlaceId()).child(Constants.BUSINESS_OWNER).getRef();
+                final DatabaseReference ownersListReference = DataHolder.userDatabaseReference.getParent().getParent()
+                        .child(BUSINESS_OUTLET).child(place.getPlaceId()).child(BUSINESS_OWNER).getRef();
                 ownersListReference.addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
